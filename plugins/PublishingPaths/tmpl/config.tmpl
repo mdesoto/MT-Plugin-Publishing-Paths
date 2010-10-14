@@ -1,0 +1,42 @@
+<mtapp:setting
+    id="is_active"
+    label="<__trans phrase="In Development">"
+    show_hint="0">
+    <input type="checkbox" id="is_active" name="is_active" <TMPL_IF NAME=IS_ACTIVE>checked="checked"</TMPL_IF>/>
+</mtapp:setting>
+
+<h3><__trans phrase="Production Paths"></h3>
+
+<mtapp:setting
+    id="production_site_url"
+    label="<__trans phrase="Blog URL">"
+    show_hint="1"
+    hint="<__trans phrase="The URL of your blog. Exclude the filename (i.e. index.html). End with '/'. Example: http://www.example.com/blog/">">
+    <input type="text" name="production_site_url" id="production_site_url" value="<TMPL_VAR NAME=PRODUCTION_SITE_URL>" size="50"/>
+</mtapp:setting>
+
+<mtapp:setting
+    id="production_site_path"
+    label="<__trans phrase="Blog Root">"
+    show_hint="1"
+    hint="<__trans phrase="The path where your index files will be published. Do not end with '/'. Example: /home/mt/public_html/blog or C:\www\public_html\blog">">
+    <input type="text" name="production_site_path" id="production_site_path" value="<TMPL_VAR NAME=PRODUCTION_SITE_PATH>" size="50"/>
+</mtapp:setting>
+
+<h3><__trans phrase="Development Paths"></h3>
+
+<mtapp:setting
+    id="development_site_url"
+    label="<__trans phrase="Blog URL">"
+    show_hint="1"
+    hint="<__trans phrase="The URL of your blog. Exclude the filename (i.e. index.html). End with '/'. Example: http://www.example.com/blog/">">
+    <input type="text" name="development_site_url" id="development_site_url" value="<TMPL_VAR NAME=DEVELOPMENT_SITE_URL>" size="50"/>
+</mtapp:setting>
+
+<mtapp:setting
+    id="development_site_path"
+    label="<__trans phrase="Blog Root">"
+    show_hint="1"
+    hint="<__trans phrase="The path where your index files will be published. Do not end with '/'. Example: /home/mt/public_html/blog or C:\www\public_html\blog">">
+    <input type="text" name="development_site_path" id="development_site_path" value="<TMPL_VAR NAME=DEVELOPMENT_SITE_PATH>" size="50"/>
+</mtapp:setting>

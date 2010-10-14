@@ -1,0 +1,27 @@
+id: PublishingPaths
+name: Publishing Paths
+description: Movable Type plug-in allowing the manipulation of publishing paths on the blog level.
+version: 0.01
+author_name: Michael De Soto
+author_link: http://www.quarg.com/
+plugin_link: http://www.quarg.com/
+blog_config_template: config.tmpl
+settings:
+    is_active:
+        default: ''
+        scope: blog
+    production_site_path:
+        default: ''
+        scope: blog
+    production_site_url:
+        default: ''
+        scope: blog
+    development_site_path:
+        default: ''
+        scope: blog
+    development_site_url:
+        default: ''
+        scope: blog
+
+callbacks:
+    build_page: $PublishingPaths::PublishingPaths::Plugin::handler
