@@ -34,6 +34,7 @@ settings:
 
 
 callbacks:
+    init_app: $PublishingPaths::PublishingPaths::Plugin::init_app
     MT::App::CMS::pre_run: $PublishingPaths::PublishingPaths::Plugin::pre_run
     MT::App::CMS::template_source.cfg_prefs: $PublishingPaths::PublishingPaths::Plugin::cfg_prefs_hdlr
     MT::App::CMS::template_source.header: $PublishingPaths::PublishingPaths::Plugin::header_hdlr

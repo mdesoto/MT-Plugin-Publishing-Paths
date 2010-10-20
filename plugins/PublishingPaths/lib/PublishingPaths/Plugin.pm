@@ -6,6 +6,10 @@ package PublishingPaths::Plugin;
 use strict;
 use warnings;
 
+sub init_app {
+    *MT::Blog::site_url = \&site_url;
+}
+
 sub handler {
     my ($cb, %args) = @_;
 
@@ -38,7 +42,8 @@ sub cfg_prefs_hdlr {
 
     if (my $blog = $app->blog) {
     
-        my $site_url = $blog->{'column_values'}->{'site_url'};
+        #my $site_url = $blog->{'column_values'}->{'site_url'};
+        my $site_url = $blog->site_url;
         $$tmpl =~ s/<mt:var name="website_scheme">:\/\///gi;
         $$tmpl =~ s/<mt:var name="website_domain">/$site_url/gi;
         $$tmpl =~ s/<div class="hint"><__trans phrase="The URL of your .*<\/div>//gi;
@@ -164,5 +169,57 @@ sub pre_run {
         }
     }
 }
+
+
+sub site_url {
+    my $blog = shift;
+
+    if (@_) {
+        return $blog->column('site_url', @_);
+    } elsif ( $blog->is_dynamic ) {
+        my $cfg = MT->config;
+        my $path = $cfg->CGIPath;
+        if ($path =~ m!^/!) {
+            # relative path, prepend blog domain
+            my ($blog_domain) = $blog->archive_url =~ m|(.+://[^/]+)|;
+            $path = $blog_domain . $path;
+        }
+        $path .= '/' unless $path =~ m{/$};
+        return $path;
+    } else {
+        my $url = '';
+        if ($blog->is_blog()) {
+            if (my $website = $blog->website()) {
+                $url = $website->column('site_url');
+
+            }
+            else {
+                # FIXME: there are a few occasions where
+                # a blog does not have its parent, like (bugid:102749)
+                return $blog->column('site_url');
+            }
+            my @paths = $blog->raw_site_url;
+            if ( 2 == @paths ) {
+                if ( $paths[0] ) {
+                    $url =~ s!^(https?)://(.+)/$!$1://$paths[0]$2/!;
+                }
+                if ( $paths[1] ) {
+                    $url = MT::Util::caturl( $url, $paths[1] );
+                }
+            }
+            else {
+                #$url = MT::Util::caturl( $url, $paths[0] );
+                $url = $paths[0];
+            }
+        }
+        else {
+            $url = $blog->column('site_url');
+        }
+
+        return $url;
+        
+    }
+}
+
 
 1;
