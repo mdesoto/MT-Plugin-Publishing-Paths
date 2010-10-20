@@ -49,7 +49,7 @@ sub cfg_prefs_hdlr {
         $$tmpl =~ s/<div class="hint"><__trans phrase="The URL of your .*<\/div>//gi;
         $$tmpl =~ s/<span class="extra-path">.*<\/span>//gi;
         
-        my $site_path = $blog->{'column_values'}->{'site_path'};
+        my $site_path = $blog->site_path;
         $$tmpl =~ s/<mt:var name="website_path">/$site_path/gi;
         $$tmpl =~ s/<input type="text" name="site_path".*\/>/<div class="hint"><__trans phrase="This blog's publishing paths are now managed by the"> <a href="<mt:var name="SCRIPT_URL">?__mode=cfg_plugins&amp;blog_id=<mt:var name="BLOG_ID" escape="html">">Publishing Paths<\/a> plugin.<\/div>/gi;
         $$tmpl =~ s/<div class="hint"><__trans phrase="The path where your index files will be published.*<\/div>//gi;
@@ -189,6 +189,16 @@ sub site_url {
     } else {
         my $url = '';
         if ($blog->is_blog()) {
+        
+            ## MT uses the parent blog, or website, to determine the URL and
+            ## path. The Publishing Paths plugin breaks this by potientially 
+            ## moving both the URL and the path outside the website root. So,
+            ## we do a quick check here to see if we have an FQDN on the blog,
+            ## before attempting to build the URL. No need to build if we
+            ## already have it.
+            return $blog->column('site_url') if ($blog->column('site_url') =~ m!^https?://!);
+            
+            ## Otherwise, we let MT to continue to do its thing.
             if (my $website = $blog->website()) {
                 $url = $website->column('site_url');
 
@@ -208,8 +218,7 @@ sub site_url {
                 }
             }
             else {
-                #$url = MT::Util::caturl( $url, $paths[0] );
-                $url = $paths[0];
+                $url = MT::Util::caturl( $url, $paths[0] );
             }
         }
         else {
