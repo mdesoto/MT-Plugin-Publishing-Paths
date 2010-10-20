@@ -1,7 +1,7 @@
 id: PublishingPaths
 name: Publishing Paths
-description: Movable Type plugin allowing the manipulation of publishing paths on the blog level.
-version: 0.01
+description: Movable Type plugin allowing the manipulation of publishing environment on the blog level.
+version: 0.02
 author_name: Michael De Soto
 author_link: http://www.quarg.com/
 plugin_link: http://www.quarg.com/

@@ -6,43 +6,19 @@ package PublishingPaths::Plugin;
 use strict;
 use warnings;
 
+## Monkeypatch
 sub init_app {
     *MT::Blog::site_url = \&site_url;
 }
 
-sub handler {
-    my ($cb, %args) = @_;
 
-    my $blog = $args{'blog'};
-    my $plugin = MT->component('PublishingPaths');
-    
-    unless ($blog) {
-        if (MT->config->DebugMode > 0) {
-            MT->log({message => 'No blog context passed to PublishingPaths::Plugin::handler.'});
-        }
-        return;
-    }
-
-    my $type = 'production';
-    $type = 'development' if ($plugin->get_config_value('is_active', 'blog:' . $blog->id));
-
-    my $site_path = $plugin->get_config_value($type . '_site_path', 'blog:' . $blog->id);
-    my $site_url = $plugin->get_config_value($type . '_site_url', 'blog:' . $blog->id);
-
-    if ($site_path || $site_url) {
-        $blog->site_path($site_path) if ($site_path ne $blog->site_path);
-        $blog->site_url($site_url) if ($site_url ne $blog->site_url);
-        $blog->save;
-    }
-}
-
-
+# Handle altering the general configuration screen. Basically
+# we prevent changing path information from this screen now.
 sub cfg_prefs_hdlr {
     my ($cb, $app, $tmpl) = @_;
 
     if (my $blog = $app->blog) {
     
-        #my $site_url = $blog->{'column_values'}->{'site_url'};
         my $site_url = $blog->site_url;
         $$tmpl =~ s/<mt:var name="website_scheme">:\/\///gi;
         $$tmpl =~ s/<mt:var name="website_domain">/$site_url/gi;
@@ -58,6 +34,8 @@ sub cfg_prefs_hdlr {
 }
 
 
+# Handle adding the custom background to the body tag. Soon will also include
+# dropdown in header to enable fast switching between environments.
 sub header_hdlr {
     my ($cb, $app, $tmpl) = @_;
     
@@ -123,6 +101,7 @@ NEW
 }
 
 
+# Swap out blog's path information after plugin saved.
 sub post_save {
     my ($cb, $pdata) = @_;
     
@@ -170,63 +149,78 @@ sub pre_run {
     }
 }
 
-
+# This method is identical to MT's site_url function EXCEPT that we now 
+# account for cases when the blog's URL is outside of the website path.
 sub site_url {
     my $blog = shift;
+    
+    if (MT->version_number > 5) {
 
-    if (@_) {
-        return $blog->column('site_url', @_);
-    } elsif ( $blog->is_dynamic ) {
-        my $cfg = MT->config;
-        my $path = $cfg->CGIPath;
-        if ($path =~ m!^/!) {
-            # relative path, prepend blog domain
-            my ($blog_domain) = $blog->archive_url =~ m|(.+://[^/]+)|;
-            $path = $blog_domain . $path;
-        }
-        $path .= '/' unless $path =~ m{/$};
-        return $path;
-    } else {
-        my $url = '';
-        if ($blog->is_blog()) {
-        
-            ## MT uses the parent blog, or website, to determine the URL and
-            ## path. The Publishing Paths plugin breaks this by potientially 
-            ## moving both the URL and the path outside the website root. So,
-            ## we do a quick check here to see if we have an FQDN on the blog,
-            ## before attempting to build the URL. No need to build if we
-            ## already have it.
-            return $blog->column('site_url') if ($blog->column('site_url') =~ m!^https?://!);
+        if (@_) {
+            return $blog->column('site_url', @_);
+        } elsif ( $blog->is_dynamic ) {
+            my $cfg = MT->config;
+            my $path = $cfg->CGIPath;
+            if ($path =~ m!^/!) {
+                # relative path, prepend blog domain
+                my ($blog_domain) = $blog->archive_url =~ m|(.+://[^/]+)|;
+                $path = $blog_domain . $path;
+            }
+            $path .= '/' unless $path =~ m{/$};
+            return $path;
+        } else {
+            my $url = '';
+            if ($blog->is_blog()) {
             
-            ## Otherwise, we let MT to continue to do its thing.
-            if (my $website = $blog->website()) {
-                $url = $website->column('site_url');
+                ## MT uses the parent blog, or website, to determine the URL and
+                ## path. The Publishing Paths plugin breaks this by potientially 
+                ## moving both the URL and the path outside the website root. So,
+                ## we do a quick check here to see if we have an FQDN on the blog,
+                ## before attempting to build the URL. No need to build if we
+                ## already have it.
+                return $blog->column('site_url') if ($blog->column('site_url') =~ m!^https?://!);
+                
+                ## Otherwise, we let MT to continue to do its thing.
+                if (my $website = $blog->website()) {
+                    $url = $website->column('site_url');
 
+                }
+                else {
+                    # FIXME: there are a few occasions where
+                    # a blog does not have its parent, like (bugid:102749)
+                    return $blog->column('site_url');
+                }
+                my @paths = $blog->raw_site_url;
+                if ( 2 == @paths ) {
+                    if ( $paths[0] ) {
+                        $url =~ s!^(https?)://(.+)/$!$1://$paths[0]$2/!;
+                    }
+                    if ( $paths[1] ) {
+                        $url = MT::Util::caturl( $url, $paths[1] );
+                    }
+                }
+                else {
+                    $url = MT::Util::caturl( $url, $paths[0] );
+                }
             }
             else {
-                # FIXME: there are a few occasions where
-                # a blog does not have its parent, like (bugid:102749)
-                return $blog->column('site_url');
+                $url = $blog->column('site_url');
             }
-            my @paths = $blog->raw_site_url;
-            if ( 2 == @paths ) {
-                if ( $paths[0] ) {
-                    $url =~ s!^(https?)://(.+)/$!$1://$paths[0]$2/!;
-                }
-                if ( $paths[1] ) {
-                    $url = MT::Util::caturl( $url, $paths[1] );
-                }
-            }
-            else {
-                $url = MT::Util::caturl( $url, $paths[0] );
-            }
-        }
-        else {
-            $url = $blog->column('site_url');
+
+            return $url;
         }
 
-        return $url;
-        
+    } elsif (MT->version_number > 4) {
+
+        if (!@_ && $blog->is_dynamic) {
+            my $cfg = MT->config;
+            my $path = $cfg->CGIPath;
+            $path .= '/' unless $path =~ m!/$!;
+            return $path . $cfg->ViewScript . '/' . $blog->id;
+        } else {
+            return $blog->column('site_url', @_);
+        }
+
     }
 }
 
