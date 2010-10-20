@@ -1,42 +1,75 @@
 <mtapp:setting
-    id="is_active"
-    label="<__trans phrase="In Development">"
-    show_hint="0">
-    <input type="checkbox" id="is_active" name="is_active" <TMPL_IF NAME=IS_ACTIVE>checked="checked"</TMPL_IF>/>
+    id="pp_env"
+    label="<__trans phrase="Active Environment">"
+    show_hint="1"
+    hint="">
+    <select id="pp_env" name="pp_env">
+        <option<mt:If var="pp_env" eq="dev"> selected="selected"</mt:If> value="dev">Develpment</option>
+        <option<mt:If var="pp_env" eq="prod"> selected="selected"</mt:If> value="prod">Production</option>
+        <option<mt:If var="pp_env" eq="stag"> selected="selected"</mt:If> value="stag">Staging</option>
+    </select>
 </mtapp:setting>
 
-<h3><__trans phrase="Production Paths"></h3>
+<mtapp:setting
+    id="pp_bg"
+    label="<__trans phrase="Show Background">"
+    show_hint="1"
+    hint="">
+    <input type="checkbox" id="pp_bg" name="pp_bg"<mt:If var="pp_bg"> checked="checked"</mt:If>/>
+</mtapp:setting>
+
+
+<h3><__trans phrase="Development Environment"></h3>
 
 <mtapp:setting
-    id="production_site_url"
+    id="pp_dev_url"
     label="<__trans phrase="Blog URL">"
     show_hint="1"
     hint="<__trans phrase="The URL of your blog. Exclude the filename (i.e. index.html). End with '/'. Example: http://www.example.com/blog/">">
-    <input type="text" name="production_site_url" id="production_site_url" value="<TMPL_VAR NAME=PRODUCTION_SITE_URL>" size="50"/>
+    <input type="text" id="pp_dev_url" name="pp_dev_url" value="<mt:Var name="pp_dev_url">" size="50"/>
 </mtapp:setting>
 
 <mtapp:setting
-    id="production_site_path"
+    id="pp_dev_path"
     label="<__trans phrase="Blog Root">"
     show_hint="1"
     hint="<__trans phrase="The path where your index files will be published. Do not end with '/'. Example: /home/mt/public_html/blog or C:\www\public_html\blog">">
-    <input type="text" name="production_site_path" id="production_site_path" value="<TMPL_VAR NAME=PRODUCTION_SITE_PATH>" size="50"/>
+    <input type="text" id="pp_dev_path" name="pp_dev_path" value="<mt:Var name="pp_dev_path">" size="50"/>
 </mtapp:setting>
 
-<h3><__trans phrase="Development Paths"></h3>
+<h3><__trans phrase="Production Environment"></h3>
 
 <mtapp:setting
-    id="development_site_url"
+    id="pp_prod_url"
     label="<__trans phrase="Blog URL">"
     show_hint="1"
     hint="<__trans phrase="The URL of your blog. Exclude the filename (i.e. index.html). End with '/'. Example: http://www.example.com/blog/">">
-    <input type="text" name="development_site_url" id="development_site_url" value="<TMPL_VAR NAME=DEVELOPMENT_SITE_URL>" size="50"/>
+    <input type="text" id="pp_prod_url" name="pp_prod_url" value="<mt:Var name="pp_prod_url">" size="50"/>
 </mtapp:setting>
 
 <mtapp:setting
-    id="development_site_path"
+    id="pp_prod_path"
     label="<__trans phrase="Blog Root">"
     show_hint="1"
     hint="<__trans phrase="The path where your index files will be published. Do not end with '/'. Example: /home/mt/public_html/blog or C:\www\public_html\blog">">
-    <input type="text" name="development_site_path" id="development_site_path" value="<TMPL_VAR NAME=DEVELOPMENT_SITE_PATH>" size="50"/>
+    <input type="text" id="pp_prod_path" name="pp_prod_path" value="<mt:Var name="pp_prod_path">" size="50"/>
+</mtapp:setting>
+
+
+<h3><__trans phrase="Staging Environment"></h3>
+
+<mtapp:setting
+    id="pp_stag_url"
+    label="<__trans phrase="Blog URL">"
+    show_hint="1"
+    hint="<__trans phrase="The URL of your blog. Exclude the filename (i.e. index.html). End with '/'. Example: http://www.example.com/blog/">">
+    <input type="text" id="pp_stag_url" name="pp_stag_url" value="<mt:Var name="pp_stag_url">" size="50"/>
+</mtapp:setting>
+
+<mtapp:setting
+    id="pp_stag_path"
+    label="<__trans phrase="Blog Root">"
+    show_hint="1"
+    hint="<__trans phrase="The path where your index files will be published. Do not end with '/'. Example: /home/mt/public_html/blog or C:\www\public_html\blog">">
+    <input type="text" id="pp_stag_path" name="pp_stag_path" value="<mt:Var name="pp_stag_path">" size="50"/>
 </mtapp:setting>
