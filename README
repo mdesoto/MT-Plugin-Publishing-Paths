@@ -1,0 +1,48 @@
+## Overview
+
+This Movable Type plugin allows the manipulation of publishing environment on 
+the blog level. By default, MT only allows specifying a single path and URL 
+per blog. And in MT5, that path and URL is forced to be subordinate to the 
+website. Publishing Paths does two things:
+
+    * Allows you to maintain 3 sets of paths (labeled 'development,' 
+      'production,' and 'staging') that you can easily swap between.
+
+    * Allows you to decouple your MT5 blog's paths from the parent website.
+
+
+## Compatibility
+
+    * MT5
+        I developed and tested this with MT5.
+
+    * MT4
+        This plugin works in MT4, but the CMS template customizations most 
+        certainly will not. This is coming.
+
+
+## How it Works
+
+It's simple really: The first time you load your blog with this plugin 
+installed, we grab your current path and URL and save them as your 'Production 
+Environment.' You can also add a 'Development Environment' and 'Staging 
+Environment' by going to the plugin settings screen. Once added, you can 
+easily switch between environments from the same screen (and in the future, 
+from your blog's header). In this way, you can alter where your web site is
+published on your server. That's really all there is to it.
+
+
+## Warning
+
+Please be aware that this plugin permanently alters your blogs publishing 
+paths. Disabling the plugin will not revert your settings back to a previous
+state. You can easily break your web site if you don't know what you're doing.
+
+
+## To Do
+
+This plugin will add a dropdown to a blog's header to allow easy switching
+between paths without having to go to the plugin settings screen.
+
+This plugin does not address alternate archive paths. I should, and will
+correct this if enough interest is expressed.
