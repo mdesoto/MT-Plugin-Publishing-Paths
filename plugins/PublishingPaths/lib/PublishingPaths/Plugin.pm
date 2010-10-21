@@ -19,17 +19,21 @@ sub cfg_prefs_hdlr {
 
     if (my $blog = $app->blog) {
     
-        my $site_url = $blog->site_url;
-        $$tmpl =~ s/<mt:var name="website_scheme">:\/\///gi;
-        $$tmpl =~ s/<mt:var name="website_domain">/$site_url/gi;
-        $$tmpl =~ s/<div class="hint"><__trans phrase="The URL of your .*<\/div>//gi;
-        $$tmpl =~ s/<span class="extra-path">.*<\/span>//gi;
-        
-        my $site_path = $blog->site_path;
-        $$tmpl =~ s/<mt:var name="website_path">/$site_path/gi;
-        $$tmpl =~ s/<input type="text" name="site_path".*\/>/<div class="hint"><__trans phrase="This blog's publishing paths are now managed by the"> <a href="<mt:var name="SCRIPT_URL">?__mode=cfg_plugins&amp;blog_id=<mt:var name="BLOG_ID" escape="html">">Publishing Paths<\/a> plugin.<\/div>/gi;
-        $$tmpl =~ s/<div class="hint"><__trans phrase="The path where your index files will be published.*<\/div>//gi;
-        $$tmpl =~ s/<input type="checkbox" name="enable_archive_paths".*<\/label>//gi;
+        if (MT->version_number > 5) {
+
+            my $site_url = $blog->site_url;
+            $$tmpl =~ s/<mt:var name="website_scheme">:\/\///gi;
+            $$tmpl =~ s/<mt:var name="website_domain">/$site_url/gi;
+            $$tmpl =~ s/<div class="hint"><__trans phrase="The URL of your .*<\/div>//gi;
+            $$tmpl =~ s/<span class="extra-path">.*<\/span>//gi;
+            
+            my $site_path = $blog->site_path;
+            $$tmpl =~ s/<mt:var name="website_path">/$site_path/gi;
+            $$tmpl =~ s/<input type="text" name="site_path".*\/>/<div class="hint"><__trans phrase="This blog's publishing paths are now managed by the"> <a href="<mt:var name="SCRIPT_URL">?__mode=cfg_plugins&amp;blog_id=<mt:var name="BLOG_ID" escape="html">">Publishing Paths<\/a> plugin.<\/div>/gi;
+            $$tmpl =~ s/<div class="hint"><__trans phrase="The path where your index files will be published.*<\/div>//gi;
+            $$tmpl =~ s/<input type="checkbox" name="enable_archive_paths".*<\/label>//gi;
+
+        }
     }
 }
 
@@ -50,13 +54,32 @@ sub header_hdlr {
         # Display the current environment in the background 
         # so it's clear what context we're in.
         if ($data->{'pp_bg'}) {
-        
-            my $style = sprintf(
-                "<style type=\"text/css\">body { background-image:url('<\$mt:var name=\"static_uri\"\$>plugins/PublishingPaths/img/background-%s.png'); }</style>\n",
-                $data->{'pp_env'}
-            );
-            
-            $$tmpl =~ s/(<body id="<\$mt:var name="screen_id"\$>")/$style$1/gi;
+
+            my $environment = $data->{'pp_env'};
+            if (MT->version_number > 5) {
+
+                my $style = <<NEW;
+<style type="text/css">
+    body {
+        background: url('<\$mt:var name="static_uri"\$>plugins/PublishingPaths/img/background-$environment.png') repeat;
+    }
+</style>
+NEW
+
+                $$tmpl =~ s/(<\/head>)/$style$1/gi;
+
+            } elsif (MT->version_number > 4) {
+
+                my $style = <<NEW;
+<style type="text/css">
+    #content-header {
+        background: #e7f0f6 url('<\$mt:var name="static_uri"\$>plugins/PublishingPaths/img/background-$environment.png') repeat;
+    }
+</style>
+NEW
+
+                $$tmpl =~ s/(<\/head>)/$style$1/gi;
+            }
         }
 
         # Add a dropdown to the menu to allow switching between environments.
